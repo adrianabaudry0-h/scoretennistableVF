@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Application Scores Sports</title>
+    <!-- Tailwind CSS pour le style moderne -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Ajustement pour éviter le rebond sur iOS et garantir le plein écran */
+        body {
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
+        /* Style "Glassmorphism" léger pour les panneaux */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        /* Input invisible mais focusable */
+        .bare-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #e5e7eb;
+            text-align: center;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .bare-input:focus {
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 h-[100dvh] w-full flex flex-col overflow-hidden font-sans text-slate-800">
+
+    <!-- A. ZONE SUPÉRIEURE : PARAMÈTRES (Compacte) -->
+    <header class="p-2 bg-white shadow-sm z-10 shrink-0">
+        <div class="grid grid-cols-3 gap-2 text-sm">
+            
+            <!-- Activité -->
+            <div class="flex flex-col">
+                <label class="text-xs text-gray-500 font-bold mb-1">Activité</label>
+                <select id="activite" class="w-full p-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="Basket-ball">Basket-ball</option>
+                    <option value="Handball">Handball</option>
+                    <option value="Volley-ball">Volley-ball</option>
+                    <option value="Futsal">Futsal</option>
+                    <option value="Ultimate">Ultimate</option>
+                    <option value="Badminton">Badminton</option>
+                    <option value="Tennis de table">Tennis de table</option>
+                </select>
+            </div>
+
+            <!-- Date -->
+            <div class="flex flex-col">
+                <label class="text-xs text-gray-500 font-bold mb-1">Date</label>
+                <input type="date" id="dateSeance" class="w-full p-2 bg-slate-50 border rounded-lg text-center text-xs outline-none">
+            </div>
+
+            <!-- Valeur Bonus -->
+            <div class="flex flex-col">
+                <label class="text-xs text-gray-500 font-bold mb-1">Val. Bonus</label>
+                <select id="valeurBonus" class="w-full p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 font-bold text-center outline-none">
+                    <option value="-1">-1</option>
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- B. & C. ZONES JOUEURS (Divisé verticalement, occupe tout l'espace restant) -->
+    <main class="flex-grow flex w-full relative">
+        
+        <!-- JOUEUR 1 (Gauche / Bleu) -->
+        <section class="w-1/2 flex flex-col p-2 border-r border-gray-300 bg-blue-50/50">
+            <!-- Nom -->
+            <div class="mb-2 shrink-0">
+                <input type="text" id="nomJ1" placeholder="Joueur 1" class="bare-input text-lg font-bold text-blue-800 placeholder-blue-300 uppercase py-1" value="Équipe 1">
+            </div>
+
+            <!-- Boutons d'action (Flex grow pour prendre la place) -->
+            <div class="flex-grow flex flex-col gap-2 justify-center py-2">
+                <button onclick="addPoint(1, 1)" class="flex-1 bg-white border-2 border-blue-500 text-blue-600 rounded-xl shadow-sm active:bg-blue-100 active:scale-95 transition-all flex flex-col items-center justify-center">
+                    <span class="text-3xl font-black">+1</span>
+                    <span class="text-xs uppercase font-bold">Point</span>
+                </button>
+                <button onclick="addBonus(1)" class="flex-1 bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-xl shadow-md active:opacity-90 active:scale-95 transition-all flex flex-col items-center justify-center">
+                    <span class="text-3xl font-black icon-bonus">+<span class="lbl-bonus-val">2</span></span>
+                    <span class="text-xs uppercase font-bold">Bonus</span>
+                </button>
+            </div>
+
+            <!-- Affichage Scores (C) -->
+            <div class="mt-auto pt-2 space-y-2 shrink-0">
+                <!-- Cumul Bonus -->
+                <div class="glass-panel p-2 flex justify-between items-center">
+                    <span class="text-xs text-gray-500 font-bold">Pts Bonus</span>
+                    <input type="number" id="cumulBonusJ1" value="0" readonly class="text-right w-16 bg-transparent font-mono font-bold text-orange-600 text-lg">
+                </div>
+                <!-- Score Total -->
+                <div class="glass-panel p-3 bg-white border-l-4 border-blue-600">
+                    <div class="text-center">
+                        <span class="text-xs text-gray-400 uppercase tracking-wider block">Score Total</span>
+                        <input type="number" id="scoreTotalJ1" value="0" readonly class="text-center w-full bg-transparent font-black text-5xl text-blue-900 border-none">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- JOUEUR 2 (Droite / Rouge) -->
+        <section class="w-1/2 flex flex-col p-2 bg-red-50/50">
+            <!-- Nom -->
+            <div class="mb-2 shrink-0">
+                <input type="text" id="nomJ2" placeholder="Joueur 2" class="bare-input text-lg font-bold text-red-800 placeholder-red-300 uppercase py-1" value="Équipe 2">
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="flex-grow flex flex-col gap-2 justify-center py-2">
+                <button onclick="addPoint(2, 1)" class="flex-1 bg-white border-2 border-red-500 text-red-600 rounded-xl shadow-sm active:bg-red-100 active:scale-95 transition-all flex flex-col items-center justify-center">
+                    <span class="text-3xl font-black">+1</span>
+                    <span class="text-xs uppercase font-bold">Point</span>
+                </button>
+                <button onclick="addBonus(2)" class="flex-1 bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-xl shadow-md active:opacity-90 active:scale-95 transition-all flex flex-col items-center justify-center">
+                    <span class="text-3xl font-black icon-bonus">+<span class="lbl-bonus-val">2</span></span>
+                    <span class="text-xs uppercase font-bold">Bonus</span>
+                </button>
+            </div>
+
+            <!-- Affichage Scores (C) -->
+            <div class="mt-auto pt-2 space-y-2 shrink-0">
+                <!-- Cumul Bonus -->
+                <div class="glass-panel p-2 flex justify-between items-center">
+                    <span class="text-xs text-gray-500 font-bold">Pts Bonus</span>
+                    <input type="number" id="cumulBonusJ2" value="0" readonly class="text-right w-16 bg-transparent font-mono font-bold text-orange-600 text-lg">
+                </div>
+                <!-- Score Total -->
+                <div class="glass-panel p-3 bg-white border-l-4 border-red-600">
+                    <div class="text-center">
+                        <span class="text-xs text-gray-400 uppercase tracking-wider block">Score Total</span>
+                        <input type="number" id="scoreTotalJ2" value="0" readonly class="text-center w-full bg-transparent font-black text-5xl text-red-900 border-none">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- D. FOOTER : ACTIONS GLOBALES -->
+    <footer class="p-3 bg-white border-t flex gap-3 shrink-0 pb-6"> <!-- pb-6 pour la zone safe area sur iPhone -->
+        <button onclick="resetAll()" class="w-1/3 py-3 rounded-lg bg-gray-200 text-gray-700 font-bold active:bg-gray-300 transition flex flex-col items-center justify-center text-xs">
+            <i class="fa-solid fa-rotate-right text-lg mb-1"></i>
+            RAZ
+        </button>
+        <button id="btnSave" onclick="saveData()" class="w-2/3 py-3 rounded-lg bg-emerald-600 text-white font-bold shadow-lg active:bg-emerald-700 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
+            <span>ENREGISTRER</span>
+        </button>
+    </footer>
+
+    <!-- LOGIQUE JAVASCRIPT -->
+    <script>
+        // --- Configuration ---
+        // IMPORTANT : Remplacez cette URL par l'URL de votre script Google Apps déployé
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQxDxr-JfDGoBl3RFRM2VA1oFEpr0gMuxMgUbncz4FejX_JtvX0HkZQil3JPir49cm/exec"; 
+
+        // Initialisation de la date au jour actuel
+        document.getElementById('dateSeance').valueAsDate = new Date();
+
+        // --- Gestion de l'affichage de la valeur Bonus sur les boutons ---
+        const bonusSelect = document.getElementById('valeurBonus');
+        const bonusLabels = document.querySelectorAll('.lbl-bonus-val');
+
+        function updateBonusLabels() {
+            const val = bonusSelect.value;
+            bonusLabels.forEach(lbl => {
+                // Affiche +val ou just val si négatif
+                lbl.textContent = val; 
+            });
+        }
+        bonusSelect.addEventListener('change', updateBonusLabels);
+        updateBonusLabels(); // Init
+
+        // --- Logique de Scoring ---
+        // Variables d'état
+        let scores = {
+            j1: { total: 0, bonusCumul: 0 },
+            j2: { total: 0, bonusCumul: 0 }
+        };
+
+        function addPoint(joueur, points) {
+            const key = 'j' + joueur;
+            scores[key].total += points;
+            updateDisplay();
+        }
+
+        function addBonus(joueur) {
+            const key = 'j' + joueur;
+            const bonusVal = parseInt(document.getElementById('valeurBonus').value);
+            
+            scores[key].bonusCumul += bonusVal; // On stocke juste la valeur accumulée des bonus
+            scores[key].total += bonusVal;      // On ajoute au score total
+            
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('scoreTotalJ1').value = scores.j1.total;
+            document.getElementById('cumulBonusJ1').value = scores.j1.bonusCumul;
+            
+            document.getElementById('scoreTotalJ2').value = scores.j2.total;
+            document.getElementById('cumulBonusJ2').value = scores.j2.bonusCumul;
+        }
+
+        function resetAll() {
+            if(confirm("Voulez-vous vraiment remettre les scores à zéro ?")) {
+                scores.j1.total = 0;
+                scores.j1.bonusCumul = 0;
+                scores.j2.total = 0;
+                scores.j2.bonusCumul = 0;
+                updateDisplay();
+            }
+        }
+
+        // --- Envoi vers Google Sheets ---
+        function saveData() {
+            const btn = document.getElementById('btnSave');
+            
+            // Vérification URL
+            if (GOOGLE_SCRIPT_URL === "VOTRE_URL_GOOGLE_SCRIPT_ICI") {
+                alert("Erreur : L'URL du script Google n'est pas configurée dans le code HTML (ligne ~148).");
+                return;
+            }
+
+            // Préparation des données
+            const data = {
+                date: document.getElementById('dateSeance').value,
+                activite: document.getElementById('activite').value,
+                nomJ1: document.getElementById('nomJ1').value,
+                nomJ2: document.getElementById('nomJ2').value,
+                scoreJ1: scores.j1.total,
+                scoreJ2: scores.j2.total,
+                bonusJ1: scores.j1.bonusCumul,
+                bonusJ2: scores.j2.bonusCumul
+            };
+
+            // Feedback visuel
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';
+            btn.disabled = true;
+
+            // Envoi via fetch (Mode no-cors pour éviter les erreurs cross-origin simples, 
+            // mais cela signifie qu'on ne peut pas lire la réponse JSON facilement sans configuration complexe.
+            // Pour ce cas d'usage simple, on envoie en POST text/plain pour que Apps Script le lise facilement).
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors", // Important pour les appels client -> Google Script
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                alert("Données enregistrées avec succès !");
+                // Reset optionnel après sauvegarde
+                // resetAll(); 
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Erreur lors de l'envoi.");
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
